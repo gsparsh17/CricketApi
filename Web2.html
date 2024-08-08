@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Cricket Matches</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .match-card {
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px;
+            background-color: #f9f9f9;
+            height: 200px;
+        }
+        .match-type{
+            margin:0px;
+        }
+        .match-time, .match-result, .match-type{
+            margin-bottom: 8px;
+        }
+        .match-time, .location{
+            margin:0px;
+            color: grey;
+        }
+        .match-result{
+            color:#ff3535;
+        }
+        .team {
+            display: flex;
+            justify-content: space-between;
+            margin:10px;
+        }
+        .team-name {
+            font-weight: bold;
+        }
+        .team-score {
+            color: #555;
+        }
+        #matches-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="matches-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('http://127.0.0.1:8080/api/recent-matches')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('matches-container');
+                    data.forEach(match => {
+                        const matchCard = document.createElement('div');
+                        matchCard.className = 'match-card';
+
+                        const matchTime = document.createElement('h5');
+                        matchTime.className = 'match-time';
+                        matchTime.textContent = match.match_time;
+
+                        const matchResult = document.createElement('h3');
+                        matchResult.className = 'match-result';
+                        matchResult.textContent = match.result;
+
+                        const matchType = document.createElement('h4');
+                        matchType.className = 'match-type';
+                        matchType.textContent = match.match_type;
+
+                        const location = document.createElement('h5');
+                        location.className = 'location';
+                        location.textContent = match.location;
+
+                        const team1 = document.createElement('div');
+                        team1.className = 'team';
+                        team1.innerHTML = `<span class="team-name">${match.teams[0].name}</span><span class="team-score">${match.teams[0].score}</span>`;
+
+                        const team2 = document.createElement('div');
+                        team2.className = 'team';
+                        team2.innerHTML = `<span class="team-name">${match.teams[1].name}</span><span class="team-score">${match.teams[1].score}</span>`;
+
+                        matchCard.appendChild(matchTime);
+                        matchCard.appendChild(matchResult);
+                        matchCard.appendChild(matchType);
+                        matchCard.appendChild(location);
+                        matchCard.appendChild(team1);
+                        matchCard.appendChild(team2);
+
+                        container.appendChild(matchCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching match data:', error);
+                });
+        });
+    </script>
+</body>
+</html>

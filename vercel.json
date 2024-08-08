@@ -1,0 +1,25 @@
+{
+    "name": "my-flask-app",
+    "version": 2,
+    "builds": [
+      {
+        "src": "app1.py",
+        "use": "@vercel/python"
+      },
+      {
+        "src": "app2.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/app1",
+        "dest": "app1.py"
+      },
+      {
+        "src": "/app2",
+        "dest": "app2.py"
+      }
+    ]
+  }
+  

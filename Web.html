@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Cricket Score</title>
+</head>
+<style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 20px;
+        }
+        .score {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        .score h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #555;
+        }
+        .score p {
+            margin: 5px 0;
+            font-size: 1.2em;
+        }
+        .score strong {
+            color: #000;
+        }
+        .error {
+            text-align: center;
+            font-size: 1.2em;
+            color: #d9534f;
+        }
+    </style>
+</style>
+<body>
+    <h1>Live Cricket Score</h1>
+    <div class="score" id="score">
+        Loading score...
+    </div>
+
+    <script>
+        // Fetch data from the Flask API
+        function fetchScore() {
+        fetch('http://127.0.0.1:5000/api/live-score')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('score').innerText = data.error;
+                } else {
+                    const scoreHtml = `
+                        <h2>${data.match_title} ${data.match_title2}</h2>
+                        <p><strong>${data.batting_team_name}:</strong> ${data.batting_team_score}</p>
+                        <p><strong>${data.bowling_team_name}:</strong> ${data.bowling_team_score}</p>
+                        <p><strong>Result:</strong> ${data.match_result}</p>
+                    `;
+                    document.getElementById('score').innerHTML = scoreHtml;
+                }
+            })
+            .catch(error => {
+                document.getElementById('score').innerText = 'Error fetching data';
+                console.error('Error:', error);
+            });
+        }
+
+        // Auto-reload the page every 60 seconds
+        function autoReload() {
+            setInterval(() => {
+                window.location.reload();
+            }, 30000); // 60000 milliseconds = 60 seconds
+        }
+        fetchScore();
+        autoReload();
+    </script>
+</body>
+</html>
