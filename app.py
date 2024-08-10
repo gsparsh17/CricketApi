@@ -1,99 +1,112 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template_string, jsonify
 import requests
-from flask_cors import CORS
 from bs4 import BeautifulSoup
+from flask_cors import CORS
 
+# Example HTML content
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/api/live-score', methods=['GET'])
-def home():
-    # URL of Cricbuzz's live score page
-    url = "https://www.cricbuzz.com/cricket-match/live-scores"
+@app.route('/api/recent-matches', methods=['GET'])
+def recent_scores():
+#       url = 'https://www.crictracker.com/live-scores/recent/'
+#       response = requests.get(url)
 
-    # Send a GET request to the Cricbuzz URL
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+#       soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Scrape the necessary data from the HTML
-    # Example: Finding the first live score card
-#     score_section = soup.find('div', class_='cb-mtch-lst')
-#     score_section1 = soup.find('div', class_='cb-scr-wll-chvrn')
-    
-#     if score_section:
-#         match_title = score_section.find('h3', class_='cb-lv-scr-mtch-hdr').text.strip()
-#         print(match_title)
-#         # live_score1 = score_section1.find('div', class_='cb-ovr-flo').text.strip()
-#         # print(live_score1)
-#         # live_score2 = score_section1.find_next_sibling('div', class_='cb-ovr-flo').text.strip()
-#         # print(live_score2)
-#         batting_team = score_section1.find('div', class_='cb-hmscg-bat-txt cb-ovr-flo')
-#         batting_team_name = batting_team.find('div', class_='cb-ovr-flo cb-hmscg-tm-nm').text.strip()
-#         batting_team_score = batting_team.find_all('div', class_='cb-ovr-flo')[1].text.strip()
+# # Find all matches
+#       match_time = soup.find('p', class_='style_matchTime__pZznE').text
 
-# # Scraping the bowling team's score
-#         bowling_team = score_section1.find('div', class_='cb-hmscg-bwl-txt')
-#         bowling_team_name = bowling_team.find('div', class_='cb-ovr-flo cb-hmscg-tm-nm').text.strip()
-#         bowling_team_score = bowling_team.find_all('div', class_='cb-ovr-flo')[1].text.strip()
+# # Extract the match result
+#       match_result = soup.find('p', class_='d-flex align-items-start style_matchStatus__ruEMh text-success').text.strip()
 
-# # Scraping the match result
-#         match_result = soup.find('div', class_='cb-text-complete').text.strip()
+# # Extract the match type and location
+#       match_type = soup.find('p', class_='font-semi text-dark').text
+#       location = soup.find('p', class_='text-muted').text
 
-    match_section = soup.find('div', class_='cb-mtch-lst cb-col cb-col-100 cb-tms-itm')
+# # Extract the team names and scores
+#       teams = soup.find_all('div', class_='style_team__FQ6eS')
+#       team1_name = teams[0].find('p').text
+#       team1_score = teams[0].find_all('p')[1].text
+#       team2_name = teams[1].find('p').text
+#       team2_score = teams[1].find_all('p')[1].text
 
-    if match_section:
-        match_title_element = match_section.find('h3', class_='cb-lv-scr-mtch-hdr')
-        match_title = match_title_element.text.strip() if match_title_element else 'No Match Title Found'
+# # Print the extracted information
+#       data={
+#     "match_time": match_time,
+#     "result": match_result,
+#     "match_type": match_type,
+#     "location": location,
+#     "teams": [
+#         {
+#             "name": team1_name,
+#             "score": team1_score
+#         },
+#         {
+#             "name": team2_name,
+#             "score": team2_score
+#         }
+#               ]
+#              }
 
-        match_title_element2 = match_section.find('span', class_='text-gray')
-        match_title2 = match_title_element2.text.strip() if match_title_element2 else 'No Match Title Found'
-        
-        # Extract match time and venue
-        match_time_element = match_section.find('span', class_='ng-binding')
-        match_time = match_time_element.text.strip() if match_time_element else 'No Match Time Found'
-        
-        # Extract score details
-        score_section = match_section.find('div', class_='cb-scr-wll-chvrn cb-lv-scrs-col')
-        if score_section:
-            batting_team = score_section.find('div', class_='cb-hmscg-bat-txt cb-ovr-flo')
-            batting_team_name = batting_team.find('div', class_='cb-ovr-flo cb-hmscg-tm-nm').text.strip()
-            batting_team_score = batting_team.find_all('div', class_='cb-ovr-flo')[1].text.strip()
+#       print(f"Match Time: {match_time}")
+#       print(f"Result: {match_result}")
+#       print(f"Match Type: {match_type}")
+#       print(f"Location: {location}")
+#       print(f"{team1_name}: {team1_score}")
+#       print(f"{team2_name}: {team2_score}")
+#       return jsonify(data)
 
-            bowling_team = score_section.find('div', class_='cb-hmscg-bwl-txt')
-            bowling_team_name = bowling_team.find('div', class_='cb-ovr-flo cb-hmscg-tm-nm').text.strip()
-            bowling_team_score = bowling_team.find_all('div', class_='cb-ovr-flo')[1].text.strip() if len(bowling_team.find_all('div', class_='cb-ovr-flo')) > 1 else 'Not Available'
+ url = "https://www.crictracker.com/live-scores/"
 
-            match_result = score_section.find('div', class_='cb-text-live').text.strip() if score_section.find('div', class_='cb-text-live') else 'Result Not Available'
+# Fetch the page content
+ response = requests.get(url)
+ html_content = response.content
 
-# Printing the results
-            print(f"{batting_team_name}: {batting_team_score}")
-            print(f"{bowling_team_name}: {bowling_team_score}")
-            print(f"Result: {match_result}")
+# Parse the HTML content
+ soup = BeautifulSoup(html_content, 'html.parser')
 
-        else:
-            batting_team_name = 'Not Available'
-            batting_team_score = 'Not Available'
-            bowling_team_name = 'Not Available'
-            bowling_team_score = 'Not Available'
-            match_result = 'Not Available'
+# Find all match cards
+ match_cards = soup.find_all('div', class_='style_fixturesItem__3hcva')
 
-        data = {
-            'match_title': match_title,
-            'match_title2': match_title2,
-            'match_time': match_time,
-            'batting_team_name': batting_team_name,
-            'batting_team_score': batting_team_score,
-            'bowling_team_name': bowling_team_name,
-            'bowling_team_score': bowling_team_score,
-            'match_result': match_result
-        }
+# List to store match data
+ matches = []
 
-        return jsonify(data)
-    else:
-        match_title = "No Live Match Found"
+# Loop through each match card and extract data
+ for card in match_cards:
+      match_time = card.find('p', class_='style_matchTime__pZznE').text.strip()
+      match_result = card.find('p', class_='d-flex align-items-start style_matchStatus__ruEMh text-danger').text.strip()
+      match_type = card.find('p', class_='font-semi text-dark').text.strip()
+      location = card.find('p', class_='text-muted').text.strip()
 
-    # Pass the scraped data to the HTML template
-    return render_template('index.html', match_title=match_title, match_title2=match_title2, batting_team_name=batting_team_name, batting_team_score=batting_team_score, bowling_team=bowling_team, bowling_team_name=bowling_team_name, bowling_team_score=bowling_team_score, match_result=match_result)
+      teams = card.find_all('div', class_='style_team__FQ6eS')
+      team1_name = teams[0].find('p').text.strip()
+      team1_score = teams[0].find_all('p')[1].text.strip()
+      team2_name = teams[1].find('p').text.strip()
+      team2_score = teams[1].find_all('p')[1].text.strip()
+
+      match_data = {
+        "match_time": match_time,
+        "result": match_result,
+        "match_type": match_type,
+        "location": location,
+        "teams": [
+            {
+                "name": team1_name,
+                "score": team1_score
+            },
+            {
+                "name": team2_name,
+                "score": team2_score
+            }
+        ]
+    }
+      matches.append(match_data)
+ return matches
+
+def get_recent_matches():
+    matches = recent_scores()
+    return jsonify(matches)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
